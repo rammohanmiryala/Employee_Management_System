@@ -1,7 +1,6 @@
 {
-  "name": "library-db",
+  "name": "main",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,13 +9,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
-    "dotenv": "^8.6.0",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "figlet": "^1.5.2",
-    "inquire": "^0.4.8",
     "inquirer": "^8.2.0",
-    "mysql2": "^2.3.3",
-    "sequelize": "^6.3.5"
+    "jshint": "^2.12.0",
+    "mysql2": "^2.3.3"
   }
 }
