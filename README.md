@@ -1,11 +1,11 @@
 
-  # Note Taker 
+  # Employee Management System
 
   ![License](https://img.shields.io/badge/Licence-MIT-red)
 
   ## About Project
 
-Note Taker that can be used to write and save notes. This application will use an Express.js back end and will save and retrieve note data from a JSON file.
+Employee Management System that can be used to add , update and view the employees. This application will use an mysql and inquire.
   
 ## Table of Contents 
 - [Installation](#Installation)
@@ -13,8 +13,6 @@ Note Taker that can be used to write and save notes. This application will use a
 - [demo](#demo)
 - [License](#License)
 - [Repositorie](#Repositorie)
-
-
     
 ## Installation
 
@@ -22,15 +20,15 @@ Note Taker that can be used to write and save notes. This application will use a
 
 - npm install 
 - npm install express
-- npm install UUID
-
+- npm install inquirer
+- npm install mysql2
     
 ## Usage 
 *Run this code to run the application*
 - node server.js
 
 ## Demo
-![note taker](./Assets/img.gif)
+![Employee_Management_System](./Assets/img.gif)
 
 ## License 
 
@@ -39,7 +37,7 @@ Note Taker that can be used to write and save notes. This application will use a
 
 ## Repositorie 
 ---
-- github: https://github.com/rammohanmiryala/Note-Taker.git
+- github: https://github.com/rammohanmiryala/Employee_Management_System.git
 
-- herokuapp : https://ram-note-taker.herokuapp.com/
+- video demo : https://youtu.be/qeynqc2IKck
   
