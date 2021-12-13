@@ -32,13 +32,14 @@ const db = mysql.createConnection({
   console.log(`Connected to the Employee_Management_System_db database.`)
 
 );
-employee()
+
+employee();
 
 function employee() {
   inquirer.prompt([{
       type: "list",
       name: "answers",
-      message: "what whould you like to do?",
+      message: "what would you like to do?",
       choices: [
         "view all departments",
         "view all roles",
@@ -48,8 +49,6 @@ function employee() {
         "add an employee",
         "update an employee role"
       ]
-
-
     }])
     .then((userinput) => {
 
@@ -84,11 +83,12 @@ function employee() {
 
       }
 
+      if (userinput.answers === "update an employee role") {
 
+        updateemployeerole();
 
-
+      }
     })
-
 }
 
 function viewAllDepartments() {
@@ -101,9 +101,7 @@ function viewAllDepartments() {
 // THEN I am presented with the job title, role id, the department 
 // that role belongs to, and the salary for that role
 function viewallroles() {
-  db.query(`SELECT roles.id,title,department.department_name as DepartmentName ,salary
-  FROM employee_management_system_db.department  right JOIN  employee_management_system_db.roles
-  ON department.id = roles.department_id;`, (err, data) => {
+  db.query(`SELECT * FROM employee_management_system_db.roles;`, (err, data) => {
     if (err) throw err;
     console.table(data);
     employee()
@@ -113,7 +111,7 @@ function viewallroles() {
 // THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 function viewallemployees() {
   db.query(`SELECT first_name, last_name,r.title, r.salary,d.department_name,manager_id as manager
-  FROM employee_management_system_db.employee e LEFT JOIN employee_management_system_db.roles r ON e.role_id = r.id LEFT JOIN employee_management_system_db.department d ON d.id = r.department_id;
+  FROM employee_management_system_db.employee e LEFT JOIN employee_management_system_db.roles r ON e.role_id = r.role_id LEFT JOIN employee_management_system_db.department d ON d.id = r.department_id;
   `, (err, data) => {
     if (err) throw err;
     console.table(data);
@@ -131,14 +129,11 @@ function adddepartment() {
     .then((userinput) => {
       db.query('INSERT INTO department (department_name) VALUES (?)', (userinput.answers), (err, data) => {
         if (err) throw err;
-        console.table(data);
-        console.log(userinput.answers + "is added to department table")
+        
+        console.log("department name is added to department table")
         employee()
       });
-
-
     })
-
 }
 
 function addarole() {
@@ -171,7 +166,7 @@ function addarole() {
           }
         ])
         .then((userinputs) => {
-          db.query('INSERT INTO roles(title, salary, department_id) VALUES (?, ?, ?);', [userinputs.title, userinputs.salary, userinputs.department_id], (err, results) => {
+          db.query('INSERT INTO roles(title, salary, department_id) VALUES (?, ?, ?);', [userinputs.title, userinputs.salary, userinputs.department_id], (err, data) => {
             if (err) throw err;
             console.log("new role added")
             employee()
@@ -181,25 +176,29 @@ function addarole() {
 }
 
 function addemployee() {
-  db.promise().query('SELECT id, title FROM roles')
+  db.promise().query('SELECT role_id, title FROM roles')
     .then(([rolesdata]) => {
 
       // const department = departmentdata
-      const rolestable = rolesdata.map(({id,title}) => ({
+      const rolestable = rolesdata.map(({
+        role_id,
+        title
+      }) => ({
+        value: role_id,
         name: title,
-        value: id,
+
       }))
 
-      db.promise().query('SELECT id, concat(first_name," ",last_name) as fullname FROM employee')
+      db.promise().query('SELECT employee_id, concat(first_name," ",last_name) as fullname FROM employee')
         .then(([employeedata]) => {
 
           // const department = departmentdata
           const employeetable = employeedata.map(({
             fullname,
-            id
+            employee_id
           }) => ({
             name: fullname,
-            value: id,
+            value: employee_id,
           }))
 
           inquirer.prompt([{
@@ -214,20 +213,20 @@ function addemployee() {
               },
               {
                 type: "list",
-                name: "role_id",
+                name: "roleid",
                 message: "whats the employee role ?",
                 choices: rolestable
 
               },
               {
                 type: "list",
-                name: "manager_id",
+                name: "managerid",
                 message: "who is the manager?",
                 choices: employeetable
               }
             ])
             .then((userinputs) => {
-              db.query('INSERT INTO employee(first_name,last_name, role_id,manager_id) VALUES (?, ?, ?,?);', [userinputs.first_name, userinputs.last_name, userinputs.manger_id, userinputs.role_id], (err, results) => {
+              db.query('INSERT INTO employee (first_name, last_name,role_id, manager_id) VALUES (?, ?, ?,?);', [userinputs.first_name, userinputs.last_name, userinputs.roleid, userinputs.managerid ], (err, data) => {
                 if (err) throw err;
                 console.log("new role added")
                 employee()
@@ -237,4 +236,50 @@ function addemployee() {
     })
 }
 
-// db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);', [answers.first_name, answers.last_name, answers.role_id, answers.manager_id], (err, results) => {
+function updateemployeerole() {
+  db.promise().query('SELECT employee_id, concat(first_name, " ",last_name) AS fullname from employee')
+    .then(([employename]) => {
+      const nameofemployee = employename.map(({
+        id,
+        fullname
+      }) => ({
+        value: id,
+        name: fullname
+      }));
+
+      //update the role
+      db.promise().query('SELECT role_id, title AS Role From roles')
+        .then(([employerole]) => {
+
+          const whichrole = employerole.map(({
+            id,
+            Role
+          }) => ({
+            value: id,
+            name: Role
+          }));
+
+          inquirer.prompt([
+            {
+              type: "list",
+              name: "role",
+              message: " what role  you want to assign to employee?",
+              choices: whichrole
+            },
+            {
+              type: "list",
+              name: "employee_n",
+              message: "name of the employee you want to update?",
+              choices: nameofemployee
+            }
+          ]).then(userinputs => {
+            db.query('UPDATE employee SET role_id = ? WHERE employee_id = ?', [userinputs.role, userinputs.employee_n], (err, data) => {
+              console.log(data)
+              if (err) throw err;
+              console.log("employee role  is updated successfully")
+              employee()
+            })
+          })
+        })
+    })
+}
