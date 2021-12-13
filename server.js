@@ -78,6 +78,11 @@ function employee() {
         addarole();
 
       }
+      if (userinput.answers === "add an employee") {
+
+        addemployee();
+
+      }
 
 
 
@@ -137,43 +142,99 @@ function adddepartment() {
 }
 
 function addarole() {
-  db.promise().query('SELECT department.id, department.name FROM department')
+  db.promise().query('SELECT department_name,id  FROM department')
     .then(([departmentdata]) => {
 
-      // const department = departmenttable
-      let departmentrole = departmentdata.map(({
-        id,
-        name
+      // const department = departmentdata
+      const departmenttable = departmentdata.map(({
+        name,
+        id
       }) => ({
-        value: id,
         name: name,
-        
+        value: id,
       }))
-
-    })
-
-   inquirer.prompt([{
-        type: "input",
-        name: "title",
-        message: "What is the title of this new role?"
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "what is the salary of new role?"
-      },
-      {
-        type: "list",
-        name: "department_id",
-        message: "what department role is in ?",
-        choices: departmentrole
-      }
-    ])
-    .then((userinputs) => {
-      db.query('INSERT INTO role(title, salary, department_id) VALUES (?, ?, ?);', [userinputs.title, userinputs.salary, userinputs.department_id], (err, results) => {
-        if (err) throw err;
-        console.log("new role added")
-        employee()
-      })
+      inquirer.prompt([{
+            type: "input",
+            name: "title",
+            message: "What is the title of this new role?"
+          },
+          {
+            type: "input",
+            name: "salary",
+            message: "what is the salary of new role?"
+          },
+          {
+            type: "list",
+            name: "department_id",
+            message: "what department role is in ?",
+            choices: departmenttable,
+          }
+        ])
+        .then((userinputs) => {
+          db.query('INSERT INTO roles(title, salary, department_id) VALUES (?, ?, ?);', [userinputs.title, userinputs.salary, userinputs.department_id], (err, results) => {
+            if (err) throw err;
+            console.log("new role added")
+            employee()
+          })
+        })
     })
 }
+
+function addemployee() {
+  db.promise().query('SELECT id, title FROM roles')
+    .then(([rolesdata]) => {
+
+      // const department = departmentdata
+      const rolestable = rolesdata.map(({id,title}) => ({
+        name: title,
+        value: id,
+      }))
+
+      db.promise().query('SELECT id, concat(first_name," ",last_name) as fullname FROM employee')
+        .then(([employeedata]) => {
+
+          // const department = departmentdata
+          const employeetable = employeedata.map(({
+            fullname,
+            id
+          }) => ({
+            name: fullname,
+            value: id,
+          }))
+
+          inquirer.prompt([{
+                type: "input",
+                name: "first_name",
+                message: "employee first name?"
+              },
+              {
+                type: "input",
+                name: "last_name",
+                message: "employee last name?"
+              },
+              {
+                type: "list",
+                name: "role_id",
+                message: "whats the employee role ?",
+                choices: rolestable
+
+              },
+              {
+                type: "list",
+                name: "manager_id",
+                message: "who is the manager?",
+                choices: employeetable
+              }
+            ])
+            .then((userinputs) => {
+              db.query('INSERT INTO employee(first_name,last_name, role_id,manager_id) VALUES (?, ?, ?,?);', [userinputs.first_name, userinputs.last_name, userinputs.manger_id, userinputs.role_id], (err, results) => {
+                if (err) throw err;
+                console.log("new role added")
+                employee()
+              })
+            })
+        })
+    })
+}
+
+// db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);', [answers.first_name, answers.last_name, answers.role_id, answers.manager_id], (err, results) => {
